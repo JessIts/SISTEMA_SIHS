@@ -11,7 +11,7 @@ from app.schemas.user import (
     UserUpdate,
 )
 from app.services.user_service import UserService
-
+from app.common.responses import ApiResponse
 
 router = APIRouter(
     prefix="/users",
@@ -28,9 +28,10 @@ def get_user_controller(
     return UserController(service)
 
 
+
 @router.post(
     "",
-    response_model=UserResponse,
+    response_model=ApiResponse[UserResponse],
     status_code=status.HTTP_201_CREATED,
 )
 def create_user(
@@ -39,19 +40,31 @@ def create_user(
         get_user_controller
     ),
 ):
-    return controller.create(data)
+    user = controller.create(data)
+
+    return ApiResponse(
+        message="Usuario creado correctamente.",
+        data=user,
+    )
+
 
 
 @router.get(
     "",
-    response_model=list[UserResponse],
+    response_model=ApiResponse[list[UserResponse]],
 )
 def get_users(
     controller: UserController = Depends(
         get_user_controller
     ),
 ):
-    return controller.get_all()
+    users = controller.get_all()
+
+    return ApiResponse(
+        message="Usuarios obtenidos correctamente.",
+        data=users,
+    )
+
 
 
 @router.get(
@@ -68,7 +81,7 @@ def get_inactive_users(
 
 @router.patch(
     "/{user_uuid}/activate",
-    response_model=UserResponse,
+    response_model=ApiResponse[UserResponse],
 )
 def activate_user(
     user_uuid: UUID,
@@ -76,12 +89,18 @@ def activate_user(
         get_user_controller
     ),
 ):
-    return controller.activate(user_uuid)
+    user = controller.activate(user_uuid)
+
+    return ApiResponse(
+        message="Usuario activado correctamente.",
+        data=user,
+    )
+
 
 
 @router.get(
     "/{user_uuid}",
-    response_model=UserResponse,
+    response_model=ApiResponse[UserResponse],
 )
 def get_user(
     user_uuid: UUID,
@@ -89,12 +108,18 @@ def get_user(
         get_user_controller
     ),
 ):
-    return controller.get_by_uuid(user_uuid)
+    user = controller.get_by_uuid(user_uuid)
+
+    return ApiResponse(
+        message="Usuario obtenido correctamente.",
+        data=user,
+    )
+
 
 
 @router.put(
     "/{user_uuid}",
-    response_model=UserResponse,
+    response_model=ApiResponse[UserResponse],
 )
 def update_user(
     user_uuid: UUID,
@@ -103,9 +128,14 @@ def update_user(
         get_user_controller
     ),
 ):
-    return controller.update(
+    user = controller.update(
         user_uuid,
         data,
+    )
+
+    return ApiResponse(
+        message="Usuario actualizado correctamente.",
+        data=user,
     )
 
 

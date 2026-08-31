@@ -13,8 +13,6 @@ class UserRepository:
 
     def create(self, user: User) -> User:
         self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
 
         return user
 
@@ -88,19 +86,14 @@ class UserRepository:
         )
 
     def update(self, user: User) -> User:
-        self.db.commit()
-        self.db.refresh(user)
+        return user
+
+    def deactivate(self, user: User) -> User:
+        user.is_active = False
 
         return user
 
-    def deactivate(self, user: User) -> None:
-        user.is_active = False
-
-        self.db.commit()
-        self.db.refresh(user)
-
-    def activate(self, user: User) -> None:
+    def activate(self, user: User) -> User:
         user.is_active = True
 
-        self.db.commit()
-        self.db.refresh(user)
+        return user
