@@ -24,6 +24,7 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
+
     name: str | None = Field(
         default=None,
         min_length=2,
@@ -36,6 +37,12 @@ class UserUpdate(BaseModel):
         default=None,
         min_length=7,
         max_length=20,
+    )
+
+    document_number: str | None = Field(
+        default=None,
+        min_length=5,
+        max_length=30,
     )
 
 
