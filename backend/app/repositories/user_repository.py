@@ -1,8 +1,7 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
-
 from app.models.user import User
 
 
@@ -57,21 +56,43 @@ class UserRepository:
 
     def get_all(
         self,
+        page: int,
+        limit: int,
         include_inactive: bool = False,
-    ) -> list[User]:
+    ) -> tuple[list[User], int]:
 
         statement = select(User)
+
+        count_statement = select(
+            func.count()
+        ).select_from(User)
 
         if not include_inactive:
             statement = statement.where(
                 User.is_active.is_(True)
             )
+            count_statement = count_statement.where(
+                User.is_active.is_(True)
+            )
 
-        statement = statement.order_by(User.id)
+        total = self.db.scalar(
+            count_statement
+        ) or 0
 
-        return list(
+        offset = (page - 1) * limit
+
+        statement = (
+            statement
+            .order_by(User.id)
+            .offset(offset)
+            .limit(limit)
+        )
+
+        users = list(
             self.db.scalars(statement).all()
         )
+
+        return users, total
 
     def get_inactive(self) -> list[User]:
 

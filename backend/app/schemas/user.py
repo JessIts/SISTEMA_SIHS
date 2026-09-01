@@ -58,3 +58,10 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
+    
+class UserPagination(BaseModel):
+    items: list[UserResponse]
+    page: int
+    limit: int
+    total: int
+    pages: int

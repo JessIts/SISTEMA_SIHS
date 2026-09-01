@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.controllers.user_controller import UserController
@@ -9,6 +9,7 @@ from app.schemas.user import (
     UserCreate,
     UserResponse,
     UserUpdate,
+    UserPagination
 )
 from app.services.user_service import UserService
 from app.common.responses import ApiResponse
@@ -51,14 +52,26 @@ def create_user(
 
 @router.get(
     "",
-    response_model=ApiResponse[list[UserResponse]],
+    response_model=ApiResponse[UserPagination],
 )
 def get_users(
+    page: int = Query(
+        default=1,
+        ge=1,
+    ),
+    limit: int = Query(
+        default=10,
+        ge=1,
+        le=100,
+    ),
     controller: UserController = Depends(
         get_user_controller
     ),
 ):
-    users = controller.get_all()
+    users = controller.get_all(
+        page,
+        limit,
+    )
 
     return ApiResponse(
         message="Usuarios obtenidos correctamente.",

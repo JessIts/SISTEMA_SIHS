@@ -11,6 +11,7 @@ from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import UserCreate, UserUpdate
 
+from math import ceil
 
 class UserService:
 
@@ -82,11 +83,27 @@ class UserService:
 
         return user
 
-    def get_users(self) -> list[User]:
+    def get_users(
+        self,
+        page: int,
+        limit: int,
+    ) -> dict:
 
-        return self.repository.get_all(
+        users, total = self.repository.get_all(
+            page=page,
+            limit=limit,
             include_inactive=False,
         )
+
+        pages = ceil(total / limit) if total else 0
+
+        return {
+            "items": users,
+            "page": page,
+            "limit": limit,
+            "total": total,
+            "pages": pages,
+        }
 
     def get_inactive_users(self) -> list[User]:
 

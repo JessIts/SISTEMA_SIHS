@@ -2,7 +2,7 @@ from uuid import UUID
 
 from app.schemas.user import UserCreate, UserUpdate
 from app.services.user_service import UserService
-
+from sqlalchemy import func, select
 
 class UserController:
 
@@ -18,8 +18,15 @@ class UserController:
     ):
         return self.service.create_user(data)
 
-    def get_all(self):
-        return self.service.get_users()
+    def get_all(
+        self,
+        page: int,
+        limit: int,
+):
+        return self.service.get_users(
+            page,
+            limit,
+        )
 
     def get_inactive(self):
         return self.service.get_inactive_users()
