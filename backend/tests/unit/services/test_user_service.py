@@ -368,3 +368,74 @@ def test_activate_user_already_active():
 
     repository.activate.assert_not_called()
     db.commit.assert_not_called()
+
+
+def test_get_users_success():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+
+    service = UserService(db)
+    service.repository = repository
+
+    users = [
+        MagicMock(name="User 1"),
+        MagicMock(name="User 2"),
+    ]
+
+    repository.get_all.return_value = (
+        users,
+        25,
+    )
+
+    # Act
+    result = service.get_users(
+        page=2,
+        limit=10,
+    )
+
+    # Assert
+    assert result["items"] == users
+    assert result["page"] == 2
+    assert result["limit"] == 10
+    assert result["total"] == 25
+    assert result["pages"] == 3
+
+    repository.get_all.assert_called_once_with(
+        page=2,
+        limit=10,
+        include_inactive=False,
+    )
+    
+def test_get_users_empty():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+
+    service = UserService(db)
+    service.repository = repository
+
+    repository.get_all.return_value = (
+        [],
+        0,
+    )
+
+    # Act
+    result = service.get_users(
+        page=1,
+        limit=10,
+    )
+
+    # Assert
+    assert result["items"] == []
+    assert result["page"] == 1
+    assert result["limit"] == 10
+    assert result["total"] == 0
+    assert result["pages"] == 0
+
+    repository.get_all.assert_called_once_with(
+        page=1,
+        limit=10,
+        include_inactive=False,
+    )
+    
