@@ -6,12 +6,14 @@ from app.core.exception_handlers import (
     conflict_exception_handler,
     not_found_exception_handler,
     validation_exception_handler,
+    unauthorized_exception_handler,
 )
 from app.core.exceptions import (
     AppException,
     ConflictException,
     NotFoundException,
     ValidationException,
+    UnauthorizedException,
 )
 from app.routes.router import api_router
 
@@ -37,6 +39,11 @@ app.add_exception_handler(
 app.add_exception_handler(
     ConflictException,
     conflict_exception_handler,
+)
+
+app.add_exception_handler(
+    UnauthorizedException,
+    unauthorized_exception_handler,
 )
 
 app.add_exception_handler(

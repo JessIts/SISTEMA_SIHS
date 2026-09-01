@@ -10,6 +10,8 @@ from app.core.exceptions import (
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import UserCreate, UserUpdate
+from app.core.security import hash_password
+from app.models.roles import UserRole
 
 from math import ceil
 
@@ -49,6 +51,8 @@ class UserService:
             email=data.email,
             phone=data.phone,
             document_number=data.document_number,
+            password_hash=hash_password(data.password),
+            role=UserRole.USER,
         )
 
         try:
@@ -114,19 +118,16 @@ class UserService:
         user_uuid: UUID,
         data: UserUpdate,
     ) -> User:
-
         user = self.get_user(user_uuid)
 
         update_data = data.model_dump(
             exclude_unset=True
         )
 
+        # Validar correo electrónico
         if "email" in update_data:
-
-            existing_email = (
-                self.repository.get_by_email(
-                    update_data["email"]
-                )
+            existing_email = self.repository.get_by_email(
+                update_data["email"]
             )
 
             if (
@@ -137,8 +138,8 @@ class UserService:
                     "El correo electrónico ya está registrado."
                 )
 
+        # Validar documento de identidad
         if "document_number" in update_data:
-
             existing_document = (
                 self.repository.get_by_document_number(
                     update_data["document_number"]
@@ -153,20 +154,24 @@ class UserService:
                     "El documento de identidad ya está registrado."
                 )
 
+        # Actualizar contraseña de forma segura
+        
+        new_password = update_data.pop("password", None)
+        
+        if new_password is not None:
+
+            user.password_hash = hash_password(new_password)
+
         for field, value in update_data.items():
             setattr(user, field, value)
 
         try:
             self.repository.update(user)
-
             self.db.commit()
             self.db.refresh(user)
-
             return user
-
         except IntegrityError:
             self.db.rollback()
-
             raise ConflictException(
                 "No fue posible actualizar el usuario."
             )

@@ -1,8 +1,8 @@
-from sqlalchemy import String
+from sqlalchemy import String, Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import BaseModel
-
+from app.models.roles import UserRole
 
 class User(BaseModel):
 
@@ -31,3 +31,19 @@ class User(BaseModel):
         unique=True,
         index=True,
     )
+
+    password_hash: Mapped[str] = mapped_column(
+    String(255),
+    nullable=False,
+    )
+    
+    role: Mapped[UserRole] = mapped_column(
+        SAEnum(
+            UserRole,
+            name="user_role",
+            values_callable=lambda enum: [member.value for member in enum],
+        ),
+        nullable=False,
+        default=UserRole.USER,
+        server_default=UserRole.USER.value,
+    )   

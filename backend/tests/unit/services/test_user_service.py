@@ -1,26 +1,37 @@
 import pytest
+
 from unittest.mock import MagicMock
-
-from app.core.exceptions import ConflictException
-from app.schemas.user import UserCreate, UserUpdate, UserResponse
-from app.services.user_service import UserService
-
 from uuid import uuid4
-from app.core.exceptions import NotFoundException
+from app.models.roles import UserRole
+
+from app.core.exceptions import (
+    ConflictException,
+    NotFoundException,
+    )
+from app.core.security import (
+    hash_password,
+    verify_password,
+    )
+from app.schemas.user import (
+    UserCreate,
+    UserUpdate,
+    )
+from app.services.user_service import UserService
 
 def test_create_user_success():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     data = UserCreate(
         name="Angel Gomez",
         email="angel@example.com",
         phone="3001234567",
         document_number="1234567890",
+        password="Password123!",
     )
 
     repository.get_by_email.return_value = None
@@ -37,16 +48,25 @@ def test_create_user_success():
     assert user.phone == "3001234567"
     assert user.document_number == "1234567890"
 
-    repository.create.assert_called_once()
+    # La contraseña nunca debe almacenarse en texto plano
+    assert user.password_hash != "Password123!"
+    assert user.password_hash
+
+    # La contraseña original debe poder verificarse contra el hash
+    assert verify_password(
+        "Password123!",
+        user.password_hash,
+    )
+
+    repository.create.assert_called_once_with(user)
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(user)
 
+def test_create_user_assigns_user_role():
 
-def test_create_user_email_already_exists():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
 
@@ -55,6 +75,35 @@ def test_create_user_email_already_exists():
         email="angel@example.com",
         phone="3001234567",
         document_number="1234567890",
+        password="Password123!",
+    )
+
+    repository.get_by_email.return_value = None
+    repository.get_by_document_number.return_value = None
+    repository.create.side_effect = lambda user: user
+
+    # Act
+    user = service.create_user(data)
+
+    # Assert
+    assert user.role == UserRole.USER
+    assert user.role.value == "user"
+
+
+def test_create_user_email_already_exists():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+    service = UserService(db)
+    service.repository = repository
+
+
+    data = UserCreate(
+        name="Angel Gomez",
+        email="angel@example.com",
+        phone="3001234567",
+        document_number="1234567890",
+        password="Password123!",
     )
 
     repository.get_by_email.return_value = MagicMock()
@@ -75,15 +124,16 @@ def test_create_user_document_already_exists():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     data = UserCreate(
         name="Angel Gomez",
         email="angel@example.com",
         phone="3001234567",
         document_number="1234567890",
+        password="Password123!",
     )
 
     repository.get_by_email.return_value = None
@@ -99,15 +149,15 @@ def test_create_user_document_already_exists():
 
     repository.create.assert_not_called()
     db.commit.assert_not_called()
-    
+
 
 def test_get_user_success():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     user_uuid = uuid4()
 
@@ -133,9 +183,9 @@ def test_get_user_not_found():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     user_uuid = uuid4()
 
@@ -154,9 +204,9 @@ def test_update_user_success():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     user_uuid = uuid4()
 
@@ -195,9 +245,9 @@ def test_update_user_email_already_exists():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     user_uuid = uuid4()
 
@@ -213,17 +263,7 @@ def test_update_user_email_already_exists():
     data = UserUpdate(
         email="existing@example.com",
     )
-    
-    print("user_uuid:", user_uuid)
-    print("existing_user.uuid:", existing_user.uuid)
-    print(
-        "son diferentes:",
-        existing_user.uuid != user_uuid,
-    )
-    print(
-        "document_number:",
-        data.model_dump(exclude_unset=True),
-    )
+
     # Act / Assert
     with pytest.raises(ConflictException) as exc_info:
         service.update_user(
@@ -243,9 +283,9 @@ def test_update_user_document_already_exists():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     user_uuid = uuid4()
 
@@ -278,13 +318,108 @@ def test_update_user_document_already_exists():
     db.commit.assert_not_called()
 
 
+def test_update_user_password_success():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+    service = UserService(db)
+    service.repository = repository
+
+
+    user_uuid = uuid4()
+
+    old_password = "OldPassword123!"
+    new_password = "NewPassword456!"
+
+    user = MagicMock()
+    user.uuid = user_uuid
+    user.password_hash = hash_password(old_password)
+
+    repository.get_by_uuid.return_value = user
+    repository.update.return_value = user
+
+    data = UserUpdate(
+        password=new_password,
+    )
+
+    # Act
+    result = service.update_user(
+        user_uuid,
+        data,
+    )
+
+    # Assert
+    assert result == user
+
+    # Nunca debe guardarse en texto plano
+    assert user.password_hash != new_password
+
+    # El hash debe haber cambiado
+    assert not verify_password(
+        old_password,
+        user.password_hash,
+    )
+
+    # La nueva contraseña debe funcionar
+    assert verify_password(
+        new_password,
+        user.password_hash,
+    )
+
+    repository.update.assert_called_once_with(user)
+    db.commit.assert_called_once()
+    db.refresh.assert_called_once_with(user)
+
+
+def test_update_user_password_wrong_password_fails():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+    service = UserService(db)
+    service.repository = repository
+
+
+    user_uuid = uuid4()
+
+    old_password = "OldPassword123!"
+    new_password = "NewPassword456!"
+
+    user = MagicMock()
+    user.uuid = user_uuid
+    user.password_hash = hash_password(old_password)
+
+    repository.get_by_uuid.return_value = user
+    repository.update.return_value = user
+
+    data = UserUpdate(
+        password=new_password,
+    )
+
+    # Act
+    service.update_user(
+        user_uuid,
+        data,
+    )
+
+    # Assert
+    assert not verify_password(
+        "WrongPassword999!",
+        user.password_hash,
+    )
+
+    assert verify_password(
+        new_password,
+        user.password_hash,
+    )
+
+
 def test_delete_user_success():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     user_uuid = uuid4()
 
@@ -313,9 +448,9 @@ def test_activate_user_success():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     user_uuid = uuid4()
 
@@ -346,9 +481,9 @@ def test_activate_user_already_active():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     user_uuid = uuid4()
 
@@ -374,9 +509,9 @@ def test_get_users_success():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     users = [
         MagicMock(name="User 1"),
@@ -406,14 +541,15 @@ def test_get_users_success():
         limit=10,
         include_inactive=False,
     )
-    
+
+
 def test_get_users_empty():
     # Arrange
     db = MagicMock()
     repository = MagicMock()
-
     service = UserService(db)
     service.repository = repository
+
 
     repository.get_all.return_value = (
         [],
@@ -438,4 +574,3 @@ def test_get_users_empty():
         limit=10,
         include_inactive=False,
     )
-    

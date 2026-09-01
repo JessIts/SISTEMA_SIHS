@@ -17,6 +17,8 @@ class NotFoundException(AppException):
 class ConflictException(AppException):
     """Conflicto con el estado actual del recurso."""
 
+class UnauthorizedException(AppException):
+    """Credenciales inválidas o autenticación requerida."""
 
 class ValidationException(AppException):
     """Error de validación de negocio."""
