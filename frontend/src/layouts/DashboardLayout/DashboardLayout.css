@@ -1,0 +1,28 @@
+.dashboard-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-layout__header {
+  width: 100%;
+}
+
+.dashboard-layout__body {
+  flex: 1;
+  display: flex;
+}
+
+.dashboard-layout__sidebar {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.dashboard-layout__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-layout__footer {
+  width: 100%;
+}
