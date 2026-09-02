@@ -1,10 +1,107 @@
 .auth-layout {
   min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+
+  background: var(--color-background);
+}
+
+.auth-layout__main {
+  width: 100%;
+  max-width: 480px;
+
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 40px 24px;
+}
+
+/* ================================
+   BRAND
+================================ */
+
+.auth-layout__brand {
+  text-align: center;
+
+  margin-bottom: 32px;
+}
+
+.auth-layout__logo {
+  width: 56px;
+  height: 56px;
+
+  margin: 0 auto 16px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  border-radius: var(--border-radius-lg);
+
+  background: var(--color-primary);
+  color: white;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  box-shadow: var(--shadow-md);
 }
+
+.auth-layout__title {
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.auth-layout__subtitle {
+  margin: 8px 0 0;
+
+  color: var(--color-text-secondary);
+
+  font-size: 14px;
+}
+
+/* ================================
+   CONTENT
+================================ */
 
 .auth-layout__content {
   width: 100%;
+}
+
+/* ================================
+   FOOTER
+================================ */
+
+.auth-layout__footer {
+  margin-top: 32px;
+
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+
+  color: var(--color-text-muted);
+
+  font-size: 12px;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 480px) {
+  .auth-layout__main {
+    padding: 32px 16px;
+  }
+
+  .auth-layout__title {
+    font-size: 21px;
+  }
 }

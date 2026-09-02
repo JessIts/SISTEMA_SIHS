@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AuthLayout from '../layouts/AuthLayout/AuthLayout'
 import DashboardLayout from '../layouts/DashboardLayout/DashboardLayout'
 
+import ProtectedRoute from '../components/common/ProtectedRoute/ProtectedRoute'
+
 import Login from '../pages/Login/Login'
 import Dashboard from '../pages/Dashboard/Dashboard'
 import NotFound from '../pages/NotFound/NotFound'
@@ -14,16 +16,27 @@ export function AppRoutes() {
 
         {/* Rutas públicas */}
         <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
         </Route>
 
         {/* Rutas autenticadas */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/" element={<Dashboard />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route
+              path="/"
+              element={<Dashboard />}
+            />
+          </Route>
         </Route>
 
         {/* 404 */}
-        <Route path="*" element={<NotFound />} />
+        <Route
+          path="*"
+          element={<NotFound />}
+        />
 
       </Routes>
     </BrowserRouter>
