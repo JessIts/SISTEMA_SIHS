@@ -1,1 +1,1 @@
-python -m scripts.create_admin gomezangeloficial@gmail.com //script para convertir usuarios en administradores
+python -m scripts.create_admin example@gmail.com //script para convertir usuarios en administradores
