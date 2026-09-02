@@ -6,27 +6,33 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from app.core.config import settings
 
 
+class Base(DeclarativeBase):
+    pass
+
+
 engine = create_engine(
     settings.database_url,
-    echo=settings.debug,
+    pool_pre_ping=True,
 )
 
 
 SessionLocal = sessionmaker(
     bind=engine,
-    class_=Session,
-    expire_on_commit=False,
+    autocommit=False,
+    autoflush=False,
 )
 
 
-class Base(DeclarativeBase):
-    pass
-
-
 def get_db() -> Generator[Session, None, None]:
+
     db = SessionLocal()
 
     try:
         yield db
+
+    except Exception:
+        db.rollback()
+        raise
+
     finally:
         db.close()
