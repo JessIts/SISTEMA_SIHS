@@ -17,6 +17,8 @@ from app.schemas.user import (
     UserUpdate,
     )
 from app.services.user_service import UserService
+from sqlalchemy.exc import IntegrityError
+
 
 def test_create_user_success():
     # Arrange
@@ -574,3 +576,149 @@ def test_get_users_empty():
         limit=10,
         include_inactive=False,
     )
+    
+def test_promote_user_to_admin_success():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+    service = UserService(db)
+    service.repository = repository
+
+    user_uuid = uuid4()
+
+    user = MagicMock()
+    user.uuid = user_uuid
+    user.role = UserRole.USER
+
+    repository.get_by_uuid.return_value = user
+
+    # Act
+    result = service.promote_to_admin(user_uuid)
+
+    # Assert
+    assert result == user
+    assert user.role == UserRole.ADMIN
+    assert user.role.value == "admin"
+
+    repository.get_by_uuid.assert_called_once_with(
+        user_uuid=user_uuid,
+        include_inactive=True,
+    )
+    db.commit.assert_called_once()
+    db.refresh.assert_called_once_with(user)
+    
+def test_promote_user_to_admin_not_found():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+    service = UserService(db)
+    service.repository = repository
+
+    user_uuid = uuid4()
+    repository.get_by_uuid.return_value = None
+
+    # Act / Assert
+    with pytest.raises(NotFoundException) as exc_info:
+        service.promote_to_admin(user_uuid)
+
+    assert str(exc_info.value) == "Usuario no encontrado."
+
+    repository.get_by_uuid.assert_called_once_with(
+        user_uuid=user_uuid,
+        include_inactive=True,
+    )
+    db.commit.assert_not_called()
+    db.refresh.assert_not_called()
+    
+def test_promote_user_to_admin_when_already_admin():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+    service = UserService(db)
+    service.repository = repository
+
+    user_uuid = uuid4()
+
+    user = MagicMock()
+    user.uuid = user_uuid
+    user.role = UserRole.ADMIN
+
+    repository.get_by_uuid.return_value = user
+
+    # Act
+    result = service.promote_to_admin(user_uuid)
+
+    # Assert
+    assert result == user
+    assert user.role == UserRole.ADMIN
+    assert user.role.value == "admin"
+
+    repository.get_by_uuid.assert_called_once_with(
+        user_uuid=user_uuid,
+        include_inactive=True,
+    )
+    db.commit.assert_called_once()
+    db.refresh.assert_called_once_with(user)
+    
+def test_promote_inactive_user_to_admin_success():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+    service = UserService(db)
+    service.repository = repository
+
+    user_uuid = uuid4()
+
+    user = MagicMock()
+    user.uuid = user_uuid
+    user.role = UserRole.USER
+    user.is_active = False
+
+    repository.get_by_uuid.return_value = user
+
+    # Act
+    result = service.promote_to_admin(user_uuid)
+
+    # Assert
+    assert result == user
+    assert user.role == UserRole.ADMIN
+    assert user.is_active is False
+
+    repository.get_by_uuid.assert_called_once_with(
+        user_uuid=user_uuid,
+        include_inactive=True,
+    )
+    db.commit.assert_called_once()
+    db.refresh.assert_called_once_with(user)
+    
+def test_promote_user_to_admin_integrity_error():
+    # Arrange
+    db = MagicMock()
+    repository = MagicMock()
+    service = UserService(db)
+    service.repository = repository
+
+    user_uuid = uuid4()
+
+    user = MagicMock()
+    user.uuid = user_uuid
+    user.role = UserRole.USER
+
+    repository.get_by_uuid.return_value = user
+    db.commit.side_effect = IntegrityError(
+        "statement",
+        {},
+        Exception("database error"),
+    )
+
+    # Act / Assert
+    with pytest.raises(ConflictException) as exc_info:
+        service.promote_to_admin(user_uuid)
+
+    assert str(exc_info.value) == (
+        "No fue posible promover el usuario a administrador."
+    )
+
+    assert user.role == UserRole.ADMIN
+    db.rollback.assert_called_once()
+    db.refresh.assert_not_called()

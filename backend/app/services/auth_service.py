@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import UnauthorizedException
-from app.core.security import verify_password
+from app.core.security import create_access_token, verify_password
 from app.repositories.user_repository import UserRepository
 
 
@@ -21,4 +21,10 @@ class AuthService:
         if not user.is_active:
             raise UnauthorizedException("Usuario inactivo.")
 
-        return user
+        access_token = create_access_token(str(user.uuid))
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+        }
+

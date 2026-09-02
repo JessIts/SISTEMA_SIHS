@@ -22,3 +22,6 @@ class UnauthorizedException(AppException):
 
 class ValidationException(AppException):
     """Error de validación de negocio."""
+    
+class ForbiddenException(AppException):
+    """El usuario autenticado no tiene permisos suficientes."""

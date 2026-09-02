@@ -7,6 +7,7 @@ from app.core.exceptions import (
     NotFoundException,
     ValidationException,
     UnauthorizedException,
+    ForbiddenException
 )
 
 
@@ -67,6 +68,18 @@ async def unauthorized_exception_handler(
 ):
     return JSONResponse(
         status_code=401,
+        content={
+            "success": False,
+            "message": exc.message,
+        },
+    )
+
+async def forbidden_exception_handler(
+    request: Request,
+    exc: ForbiddenException,
+):
+    return JSONResponse(
+        status_code=403,
         content={
             "success": False,
             "message": exc.message,

@@ -87,6 +87,25 @@ class UserService:
 
         return user
 
+    def promote_to_admin(self, user_uuid: UUID) -> User:
+        user = self.repository.get_by_uuid(
+            user_uuid=user_uuid,
+            include_inactive=True,
+        )
+        if not user:
+            raise NotFoundException("Usuario no encontrado.")
+
+        user.role = UserRole.ADMIN
+
+        try:
+            self.db.commit()
+            self.db.refresh(user)
+            return user
+        except IntegrityError:
+            self.db.rollback()
+            raise ConflictException("No fue posible promover el usuario a administrador.")
+
+
     def get_users(
         self,
         page: int,
