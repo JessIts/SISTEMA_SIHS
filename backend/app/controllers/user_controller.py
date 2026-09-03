@@ -1,8 +1,10 @@
 from uuid import UUID
 
-from app.schemas.user import UserCreate, UserUpdate
+from app.models.user import User
+from app.schemas.user import UserCreate, UserUpdate, UserProfileUpdate
 from app.services.user_service import UserService
 from sqlalchemy import func, select
+
 
 class UserController:
 
@@ -58,3 +60,13 @@ class UserController:
         user_uuid: UUID,
     ):
         return self.service.activate_user(user_uuid)
+
+    def update_my_profile(
+        self,
+        user: User,
+        data: UserProfileUpdate,
+    ) -> User:
+        return self.service.update_my_profile(
+            user=user,
+            data=data,
+        )    

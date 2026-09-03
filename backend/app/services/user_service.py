@@ -9,7 +9,7 @@ from app.core.exceptions import (
 )
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate, UserUpdate, UserProfileUpdate
 from app.core.security import hash_password
 from app.models.roles import UserRole
 
@@ -247,4 +247,63 @@ class UserService:
 
             raise ConflictException(
                 "No fue posible activar el usuario."
+            )
+            
+    def update_my_profile(
+        self,
+        user: User,
+        data: UserProfileUpdate,
+    ) -> User:
+        update_data = data.model_dump(exclude_unset=True)
+
+        if "email" in update_data:
+            existing_email = self.repository.get_by_email(
+                update_data["email"]
+            )
+
+            if (
+                existing_email
+                and existing_email.uuid != user.uuid
+            ):
+                raise ConflictException(
+                    "El correo electrónico ya está registrado."
+                )
+
+        if "document_number" in update_data:
+            existing_document = (
+                self.repository.get_by_document_number(
+                    update_data["document_number"]
+                )
+            )
+
+            if (
+                existing_document
+                and existing_document.uuid != user.uuid
+            ):
+                raise ConflictException(
+                    "El documento de identidad ya está registrado."
+                )
+
+        new_password = update_data.pop("password", None)
+
+        if new_password is not None:
+            user.password_hash = hash_password(
+                new_password
+            )
+
+        for field, value in update_data.items():
+            setattr(user, field, value)
+
+        try:
+            self.repository.update(user)
+            self.db.commit()
+            self.db.refresh(user)
+
+            return user
+
+        except IntegrityError:
+            self.db.rollback()
+
+            raise ConflictException(
+                "No fue posible actualizar el perfil."
             )

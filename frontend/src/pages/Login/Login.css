@@ -45,3 +45,18 @@
 
   font-size: 13px;
 }
+
+.login-page__register {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 10px 16px;
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-page__register:hover {
+  background: var(--color-background);
+}

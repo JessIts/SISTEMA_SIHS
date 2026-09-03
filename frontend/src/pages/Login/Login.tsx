@@ -102,7 +102,13 @@ function Login() {
         >
           Iniciar sesión
         </Button>
-
+        <button
+          type="button"
+          onClick={() => navigate('/register')}
+          className="login-page__register"
+        >
+          Crear una cuenta
+        </button>
       </form>
 
     </section>

@@ -22,12 +22,10 @@ export async function apiRequest<T>(
   )
 
   if (!response.ok) {
-    let errorMessage =
-      'Ocurrió un error en la solicitud.'
+    let errorMessage = 'Ocurrió un error en la solicitud.'
 
     try {
-      const error: ApiError =
-        await response.json()
+      const error: ApiError = await response.json()
 
       if (error.message) {
         errorMessage = error.message
@@ -37,6 +35,10 @@ export async function apiRequest<T>(
     }
 
     throw new Error(errorMessage)
+  }
+
+  if (response.status === 204) {
+    return undefined as T
   }
 
   return response.json()

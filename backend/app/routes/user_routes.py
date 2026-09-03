@@ -15,6 +15,7 @@ from app.schemas.user import (
     UserPagination,
     UserResponse,
     UserUpdate,
+    UserProfileUpdate,
 )
 from app.services.user_service import UserService
 
@@ -35,6 +36,7 @@ def get_user_controller(
 @router.post(
     "",
     response_model=ApiResponse[UserResponse],
+    dependencies=[Depends(get_current_admin)],
     status_code=status.HTTP_201_CREATED,
 )
 def create_user(
@@ -64,6 +66,26 @@ def get_my_profile(
         data=current_user,
     )
 
+@router.put(
+    "/me",
+    response_model=ApiResponse[UserResponse],
+)
+def update_my_profile(
+    data: UserProfileUpdate,
+    current_user=Depends(get_current_user),
+    controller: UserController = Depends(
+        get_user_controller
+    ),
+):
+    user = controller.update_my_profile(
+        user=current_user,
+        data=data,
+    )
+
+    return ApiResponse(
+        message="Perfil actualizado correctamente.",
+        data=user,
+    )
 
 @router.get(
     "",

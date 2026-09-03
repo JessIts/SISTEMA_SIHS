@@ -23,11 +23,12 @@ interface AuthContextValue {
   loading: boolean
   login: (credentials: LoginRequest) => Promise<void>
   logout: () => Promise<void>
+  updateUser: (user: User) => void
 }
 
-const AuthContext = createContext<
-  AuthContextValue | undefined
->(undefined)
+const AuthContext = createContext<AuthContextValue | undefined>(
+  undefined,
+)
 
 interface AuthProviderProps {
   children: ReactNode
@@ -36,20 +37,15 @@ interface AuthProviderProps {
 export function AuthProvider({
   children,
 }: AuthProviderProps) {
-  const [user, setUser] =
-    useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const [loading, setLoading] =
-    useState(true)
-
-  const isAuthenticated =
-    user !== null
+  const isAuthenticated = user !== null
 
   useEffect(() => {
     async function restoreSession() {
       try {
-        const currentUser =
-          await getCurrentUser()
+        const currentUser = await getCurrentUser()
 
         setUser(currentUser)
       } catch {
@@ -67,8 +63,7 @@ export function AuthProvider({
   ): Promise<void> {
     await loginService(credentials)
 
-    const currentUser =
-      await getCurrentUser()
+    const currentUser = await getCurrentUser()
 
     setUser(currentUser)
   }
@@ -81,6 +76,10 @@ export function AuthProvider({
     }
   }
 
+  function updateUser(updatedUser: User): void {
+    setUser(updatedUser)
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -89,6 +88,7 @@ export function AuthProvider({
         loading,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

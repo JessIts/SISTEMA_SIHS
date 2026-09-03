@@ -6,6 +6,14 @@ import type {
   User,
 } from '../types/auth.types'
 
+export interface RegisterRequest {
+  name: string
+  email: string
+  phone: string
+  document_number: string
+  password: string
+}
+
 export async function login(
   credentials: LoginRequest,
 ): Promise<void> {
@@ -22,10 +30,24 @@ export async function login(
   )
 }
 
-export async function getCurrentUser(): Promise<User> {
+export async function register(
+  data: RegisterRequest,
+): Promise<User> {
   const response = await apiRequest<
     ApiResponse<User>
   >(
+    '/auth/register',
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+  )
+
+  return response.data
+}
+
+export async function getCurrentUser(): Promise<User> {
+  const response = await apiRequest<ApiResponse<User>>(
     '/users/me',
     {
       method: 'GET',
@@ -34,6 +56,30 @@ export async function getCurrentUser(): Promise<User> {
 
   return response.data
 }
+
+export interface ProfileUpdateRequest {
+  name?: string
+  email?: string
+  phone?: string
+  document_number?: string
+  password?: string
+}
+
+export async function updateMyProfile(
+  data: ProfileUpdateRequest,
+): Promise<User> {
+  const response = await apiRequest<ApiResponse<User>>(
+    '/users/me',
+    {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    },
+  )
+
+  return response.data
+}
+
+
 
 export async function logout(): Promise<void> {
   await apiRequest<

@@ -25,3 +25,11 @@ export interface User {
   is_active: boolean
   created_at: string
 }
+
+export interface UserCreate {
+  name: string
+  email: string
+  phone: string
+  document_number: string
+  password: string
+}

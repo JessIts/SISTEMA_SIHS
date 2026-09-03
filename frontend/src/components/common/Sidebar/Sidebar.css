@@ -56,3 +56,9 @@
     font-size: 0;
   }
 }
+
+.sidebar__link--active {
+  background: var(--color-background);
+  color: var(--color-primary);
+  font-weight: 600;
+}
