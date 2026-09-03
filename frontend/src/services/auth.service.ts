@@ -3,15 +3,16 @@ import { apiRequest } from './api'
 import type {
   ApiResponse,
   LoginRequest,
-  TokenResponse,
   User,
 } from '../types/auth.types'
 
 export async function login(
   credentials: LoginRequest,
-): Promise<TokenResponse> {
-  const response = await apiRequest<
-    ApiResponse<TokenResponse>
+): Promise<void> {
+  await apiRequest<
+    ApiResponse<{
+      authenticated: boolean
+    }>
   >(
     '/auth/login',
     {
@@ -19,13 +20,9 @@ export async function login(
       body: JSON.stringify(credentials),
     },
   )
-
-  return response.data
 }
 
-export async function getCurrentUser(
-  token: string,
-): Promise<User> {
+export async function getCurrentUser(): Promise<User> {
   const response = await apiRequest<
     ApiResponse<User>
   >(
@@ -33,8 +30,20 @@ export async function getCurrentUser(
     {
       method: 'GET',
     },
-    token,
   )
 
   return response.data
+}
+
+export async function logout(): Promise<void> {
+  await apiRequest<
+    ApiResponse<{
+      authenticated: boolean
+    }>
+  >(
+    '/auth/logout',
+    {
+      method: 'POST',
+    },
+  )
 }

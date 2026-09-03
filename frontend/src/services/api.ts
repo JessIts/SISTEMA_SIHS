@@ -7,29 +7,27 @@ interface ApiError {
 export async function apiRequest<T>(
   endpoint: string,
   options?: RequestInit,
-  token?: string,
 ): Promise<T> {
   const headers = new Headers(options?.headers)
 
   headers.set('Content-Type', 'application/json')
-
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`)
-  }
 
   const response = await fetch(
     `${API_BASE_URL}${endpoint}`,
     {
       ...options,
       headers,
+      credentials: 'include',
     },
   )
 
   if (!response.ok) {
-    let errorMessage = 'Ocurrió un error en la solicitud.'
+    let errorMessage =
+      'Ocurrió un error en la solicitud.'
 
     try {
-      const error: ApiError = await response.json()
+      const error: ApiError =
+        await response.json()
 
       if (error.message) {
         errorMessage = error.message

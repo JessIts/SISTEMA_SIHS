@@ -2,11 +2,7 @@ from uuid import UUID
 
 import jwt
 
-from fastapi import Depends
-from fastapi.security import (
-    HTTPAuthorizationCredentials,
-    HTTPBearer,
-)
+from fastapi import Cookie, Depends
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -19,21 +15,38 @@ from app.models.roles import UserRole
 from app.repositories.user_repository import UserRepository
 
 
-security = HTTPBearer()
+ACCESS_TOKEN_COOKIE = "access_token"
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    access_token: str | None = Cookie(
+        default=None,
+        alias=ACCESS_TOKEN_COOKIE,
+    ),
     db: Session = Depends(get_db),
 ):
-    token = credentials.credentials
+    if not access_token:
+        raise UnauthorizedException(
+            "No autenticado."
+        )
 
     try:
-        payload = decode_access_token(token)
-        user_uuid = UUID(payload["sub"])
+        payload = decode_access_token(
+            access_token
+        )
 
-    except (jwt.InvalidTokenError, KeyError, ValueError):
-        raise UnauthorizedException("Token inválido.")
+        user_uuid = UUID(
+            payload["sub"]
+        )
+
+    except (
+        jwt.InvalidTokenError,
+        KeyError,
+        ValueError,
+    ):
+        raise UnauthorizedException(
+            "Token inválido."
+        )
 
     repository = UserRepository(db)
 

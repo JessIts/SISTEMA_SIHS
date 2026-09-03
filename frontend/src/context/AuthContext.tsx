@@ -9,6 +9,7 @@ import {
 import {
   getCurrentUser,
   login as loginService,
+  logout as logoutService,
 } from '../services/auth.service'
 
 import type {
@@ -18,18 +19,15 @@ import type {
 
 interface AuthContextValue {
   user: User | null
-  accessToken: string | null
   isAuthenticated: boolean
   loading: boolean
   login: (credentials: LoginRequest) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<
   AuthContextValue | undefined
 >(undefined)
-
-const ACCESS_TOKEN_KEY = 'sihs_access_token'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -38,38 +36,24 @@ interface AuthProviderProps {
 export function AuthProvider({
   children,
 }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] =
+    useState<User | null>(null)
 
-  const [accessToken, setAccessToken] =
-    useState<string | null>(null)
-
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] =
+    useState(true)
 
   const isAuthenticated =
-    accessToken !== null && user !== null
+    user !== null
 
   useEffect(() => {
     async function restoreSession() {
-      const storedToken =
-        localStorage.getItem(ACCESS_TOKEN_KEY)
-
-      if (!storedToken) {
-        setLoading(false)
-        return
-      }
-
       try {
         const currentUser =
-          await getCurrentUser(storedToken)
+          await getCurrentUser()
 
-        setAccessToken(storedToken)
         setUser(currentUser)
-
       } catch {
-        localStorage.removeItem(ACCESS_TOKEN_KEY)
-        setAccessToken(null)
         setUser(null)
-
       } finally {
         setLoading(false)
       }
@@ -81,40 +65,26 @@ export function AuthProvider({
   async function login(
     credentials: LoginRequest,
   ): Promise<void> {
-    const tokenResponse =
-      await loginService(credentials)
+    await loginService(credentials)
 
     const currentUser =
-      await getCurrentUser(
-        tokenResponse.access_token,
-      )
-
-    localStorage.setItem(
-      ACCESS_TOKEN_KEY,
-      tokenResponse.access_token,
-    )
-
-    setAccessToken(
-      tokenResponse.access_token,
-    )
+      await getCurrentUser()
 
     setUser(currentUser)
   }
 
-  function logout() {
-    localStorage.removeItem(
-      ACCESS_TOKEN_KEY,
-    )
-
-    setAccessToken(null)
-    setUser(null)
+  async function logout(): Promise<void> {
+    try {
+      await logoutService()
+    } finally {
+      setUser(null)
+    }
   }
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        accessToken,
         isAuthenticated,
         loading,
         login,

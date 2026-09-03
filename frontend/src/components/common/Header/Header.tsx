@@ -29,7 +29,9 @@ function Header() {
 
         <button
           type="button"
-          onClick={logout}
+          onClick={() => {
+          void logout()
+          }}
           className="header__logout"
         >
           Cerrar sesión
