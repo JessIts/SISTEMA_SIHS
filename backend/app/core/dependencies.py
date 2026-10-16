@@ -72,3 +72,22 @@ def get_current_admin(
         )
 
     return user
+
+
+MANAGER_ROLES = (
+    UserRole.ADMIN,
+    UserRole.COORDINADOR,
+)
+
+
+def get_current_manager(
+    user=Depends(get_current_user),
+):
+    """Admin o coordinador: gestionan los datos académicos (no personales)."""
+
+    if user.role not in MANAGER_ROLES:
+        raise ForbiddenException(
+            "Permisos insuficientes."
+        )
+
+    return user

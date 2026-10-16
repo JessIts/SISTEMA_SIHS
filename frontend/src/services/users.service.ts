@@ -1,10 +1,13 @@
 import { apiRequest } from './api'
 
+import { buildQuery } from './crud.service'
+
 import type {
   ApiResponse,
   User,
   UserCreate,
 } from '../types/auth.types'
+import type { UserRole } from '../types/role.types'
 
 export interface UserPagination {
   items: User[]
@@ -25,11 +28,12 @@ export interface UserUpdate {
 export async function getUsers(
   page = 1,
   limit = 10,
+  role?: UserRole,
 ): Promise<UserPagination> {
   const response = await apiRequest<
     ApiResponse<UserPagination>
   >(
-    `/users?page=${page}&limit=${limit}`,
+    `/users${buildQuery({ page, limit, role })}`,
     {
       method: 'GET',
     },
@@ -91,6 +95,23 @@ export async function activateUser(
     `/users/${userUuid}/activate`,
     {
       method: 'PATCH',
+    },
+  )
+
+  return response.data
+}
+
+export async function changeUserRole(
+  userUuid: string,
+  role: UserRole,
+): Promise<User> {
+  const response = await apiRequest<
+    ApiResponse<User>
+  >(
+    `/users/${userUuid}/role`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
     },
   )
 

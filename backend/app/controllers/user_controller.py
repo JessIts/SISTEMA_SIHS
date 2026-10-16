@@ -1,7 +1,8 @@
 from uuid import UUID
 
+from app.models.roles import UserRole
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate, UserProfileUpdate
+from app.schemas.user import UserCreate, UserUpdate, UserProfileUpdate, UserRoleUpdate
 from app.services.user_service import UserService
 from sqlalchemy import func, select
 
@@ -24,10 +25,12 @@ class UserController:
         self,
         page: int,
         limit: int,
+        role: UserRole | None = None,
 ):
         return self.service.get_users(
             page,
             limit,
+            role,
         )
 
     def get_inactive(self):
@@ -69,4 +72,16 @@ class UserController:
         return self.service.update_my_profile(
             user=user,
             data=data,
-        )    
+        )
+
+    def change_role(
+        self,
+        user_uuid: UUID,
+        data: UserRoleUpdate,
+        current_user: User,
+    ) -> User:
+        return self.service.change_role(
+            user_uuid=user_uuid,
+            data=data,
+            current_user=current_user,
+        )

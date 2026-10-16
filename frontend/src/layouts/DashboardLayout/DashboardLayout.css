@@ -183,3 +183,9 @@
     padding: 0 16px;
   }
 }
+
+@media (max-width: 600px) {
+  .dashboard-layout__body {
+    flex-direction: column;
+  }
+}

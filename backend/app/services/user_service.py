@@ -6,10 +6,11 @@ from sqlalchemy.orm import Session
 from app.core.exceptions import (
     ConflictException,
     NotFoundException,
+    ValidationException,
 )
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import UserCreate, UserUpdate, UserProfileUpdate
+from app.schemas.user import UserCreate, UserUpdate, UserProfileUpdate, UserRoleUpdate
 from app.core.security import hash_password
 from app.models.roles import UserRole
 
@@ -110,12 +111,16 @@ class UserService:
         self,
         page: int,
         limit: int,
+        role: UserRole | None = None,
     ) -> dict:
+
+        filters = {"role": role} if role is not None else {}
 
         users, total = self.repository.get_all(
             page=page,
             limit=limit,
             include_inactive=False,
+            **filters,
         )
 
         pages = ceil(total / limit) if total else 0
@@ -306,4 +311,34 @@ class UserService:
 
             raise ConflictException(
                 "No fue posible actualizar el perfil."
+            )
+
+    def change_role(
+        self,
+        user_uuid: UUID,
+        data: UserRoleUpdate,
+        current_user: User,
+    ) -> User:
+
+        if user_uuid == current_user.uuid:
+            raise ValidationException(
+                "No puedes cambiar tu propio rol."
+            )
+
+        user = self.get_user(user_uuid)
+
+        user.role = data.role
+
+        try:
+            self.repository.update(user)
+            self.db.commit()
+            self.db.refresh(user)
+
+            return user
+
+        except IntegrityError:
+            self.db.rollback()
+
+            raise ConflictException(
+                "No fue posible cambiar el rol del usuario."
             )

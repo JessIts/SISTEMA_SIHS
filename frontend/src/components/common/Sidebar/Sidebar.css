@@ -11,7 +11,24 @@
 .sidebar__navigation {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 16px;
+}
+
+.sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar__section-title {
+  padding: 0 12px 4px;
+
+  color: var(--color-text-muted);
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .sidebar__link {
@@ -44,16 +61,36 @@
   }
 }
 
+/*
+ * En pantallas pequeñas el menú pasa a ser una franja
+ * horizontal desplazable bajo el encabezado.
+ */
 @media (max-width: 600px) {
   .sidebar {
-    width: 64px;
-    padding: 20px 8px;
+    width: 100%;
+
+    padding: 8px 12px;
+
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+
+    overflow-x: auto;
+  }
+
+  .sidebar__navigation,
+  .sidebar__section {
+    flex-direction: row;
+    gap: 4px;
   }
 
   .sidebar__link {
-    justify-content: center;
-    padding: 10px;
-    font-size: 0;
+    padding: 8px 12px;
+
+    white-space: nowrap;
+  }
+
+  .sidebar__section-title {
+    display: none;
   }
 }
 

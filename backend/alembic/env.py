@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.models.base import Base
-from app.models.user import User
+import app.models  # noqa: F401  (registra todos los modelos en Base.metadata)
 
 
 config = context.config
@@ -61,4 +61,4 @@ def run_migrations_online() -> None:
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    run_migrations_online()
+    run_migrations_online()

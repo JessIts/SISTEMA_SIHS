@@ -1,4 +1,5 @@
 import { useAuth } from '../../../hooks/useAuth'
+import { ROLE_LABELS } from '../../../utils/roles'
 
 import './Header.css'
 
@@ -24,7 +25,7 @@ function Header() {
         </span>
 
         <span className="header__user-role">
-          {user?.role}
+          {user ? ROLE_LABELS[user.role] ?? user.role : ''}
         </span>
 
         <button

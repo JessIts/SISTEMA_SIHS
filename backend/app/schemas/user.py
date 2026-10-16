@@ -77,6 +77,10 @@ class UserProfileUpdate(BaseModel):
     )
     
 
+class UserRoleUpdate(BaseModel):
+    role: UserRole
+
+
 class UserResponse(BaseModel):
     uuid: UUID
     name: str

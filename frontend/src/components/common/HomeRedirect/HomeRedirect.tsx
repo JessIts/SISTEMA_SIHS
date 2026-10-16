@@ -1,7 +1,11 @@
 import { Navigate } from 'react-router-dom'
 
 import { useAuth } from '../../../hooks/useAuth'
+import { HOME_BY_ROLE } from '../../../utils/roles'
 
+/**
+ * Cada rol tiene su propio dashboard.
+ */
 function HomeRedirect() {
   const { user } = useAuth()
 
@@ -9,11 +13,12 @@ function HomeRedirect() {
     return <Navigate to="/login" replace />
   }
 
-  if (user.role === 'admin') {
-    return <Navigate to="/admin" replace />
-  }
-
-  return <Navigate to="/profile" replace />
+  return (
+    <Navigate
+      to={HOME_BY_ROLE[user.role] ?? '/profile'}
+      replace
+    />
+  )
 }
 
 export default HomeRedirect

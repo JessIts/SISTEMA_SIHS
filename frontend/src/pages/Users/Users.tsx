@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { useAuth } from '../../hooks/useAuth'
 import {
   activateUser,
+  changeUserRole,
   deactivateUser,
   getUsers,
 } from '../../services/users.service'
 
 import type { User } from '../../types/auth.types'
+import type { UserRole } from '../../types/role.types'
+import { ROLE_LABELS } from '../../utils/roles'
 
 import './Users.css'
 
 function Users() {
   const navigate = useNavigate()
+
+  const { user: currentUser } = useAuth()
+
+  const [roleFilter, setRoleFilter] =
+    useState<UserRole | ''>('')
 
   const [users, setUsers] = useState<User[]>([])
 
@@ -35,6 +44,7 @@ function Users() {
         const response = await getUsers(
           page,
           10,
+          roleFilter || undefined,
         )
 
         setUsers(response.items)
@@ -54,7 +64,7 @@ function Users() {
     }
 
     loadUsers()
-  }, [page])
+  }, [page, roleFilter])
 
   function handlePreviousPage() {
     if (page > 1) {
@@ -138,6 +148,43 @@ function Users() {
     }
   }
 
+  async function handleRoleChange(
+    user: User,
+    role: UserRole,
+  ) {
+    const confirmed = window.confirm(
+      `¿Cambiar el rol de ${user.name} a ${ROLE_LABELS[role]}?`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setError('')
+
+      const updatedUser =
+        await changeUserRole(user.uuid, role)
+
+      setUsers((currentUsers) =>
+        currentUsers.map((currentUser) =>
+          currentUser.uuid === user.uuid
+            ? updatedUser
+            : currentUser,
+        ),
+      )
+
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message)
+      } else {
+        setError(
+          'No fue posible cambiar el rol.',
+        )
+      }
+    }
+  }
+
   return (
     <section className="users-page">
 
@@ -164,6 +211,30 @@ function Users() {
       </div>
 
       <div className="users-page__content">
+
+        <label className="users-page__filter">
+          <span>Rol</span>
+
+          <select
+            value={roleFilter}
+            onChange={(event) => {
+              setPage(1)
+              setRoleFilter(
+                event.target.value as UserRole | '',
+              )
+            }}
+          >
+            <option value="">Todos</option>
+
+            {(Object.keys(ROLE_LABELS) as UserRole[]).map(
+              (role) => (
+                <option key={role} value={role}>
+                  {ROLE_LABELS[role]}
+                </option>
+              ),
+            )}
+          </select>
+        </label>
 
         {loading && (
           <p>
@@ -226,7 +297,29 @@ function Users() {
                         </td>
 
                         <td>
-                          {user.role}
+                          {user.uuid === currentUser?.uuid ? (
+                            ROLE_LABELS[user.role]
+                          ) : (
+                            <select
+                              className="users-page__role-select"
+                              value={user.role}
+                              aria-label={`Rol de ${user.name}`}
+                              onChange={(event) =>
+                                handleRoleChange(
+                                  user,
+                                  event.target.value as UserRole,
+                                )
+                              }
+                            >
+                              {(Object.keys(ROLE_LABELS) as UserRole[]).map(
+                                (role) => (
+                                  <option key={role} value={role}>
+                                    {ROLE_LABELS[role]}
+                                  </option>
+                                ),
+                              )}
+                            </select>
+                          )}
                         </td>
 
                         <td>
