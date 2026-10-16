@@ -13,18 +13,28 @@ class AuthService:
         user = self.repository.get_by_email(email)
 
         if not user:
-            raise UnauthorizedException("Credenciales inválidas.")
+            raise UnauthorizedException(
+                "Credenciales inválidas."
+            )
 
-        if not verify_password(password, user.password_hash):
-            raise UnauthorizedException("Credenciales inválidas.")
+        if not verify_password(
+            password,
+            user.password_hash,
+        ):
+            raise UnauthorizedException(
+                "Credenciales inválidas."
+            )
 
         if not user.is_active:
-            raise UnauthorizedException("Usuario inactivo.")
+            raise UnauthorizedException(
+                "Usuario inactivo."
+            )
 
-        access_token = create_access_token(str(user.uuid))
+        access_token = create_access_token(
+            str(user.uuid)
+        )
 
         return {
             "access_token": access_token,
             "token_type": "bearer",
         }
-

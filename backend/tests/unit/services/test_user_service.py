@@ -91,7 +91,6 @@ def test_create_user_assigns_user_role():
     assert user.role == UserRole.USER
     assert user.role.value == "user"
 
-
 def test_create_user_email_already_exists():
     # Arrange
     db = MagicMock()
@@ -120,7 +119,6 @@ def test_create_user_email_already_exists():
 
     repository.create.assert_not_called()
     db.commit.assert_not_called()
-
 
 def test_create_user_document_already_exists():
     # Arrange
@@ -152,7 +150,6 @@ def test_create_user_document_already_exists():
     repository.create.assert_not_called()
     db.commit.assert_not_called()
 
-
 def test_get_user_success():
     # Arrange
     db = MagicMock()
@@ -180,7 +177,6 @@ def test_get_user_success():
         include_inactive=False,
     )
 
-
 def test_get_user_not_found():
     # Arrange
     db = MagicMock()
@@ -200,7 +196,6 @@ def test_get_user_not_found():
     assert str(exc_info.value) == (
         "Usuario no encontrado."
     )
-
 
 def test_update_user_success():
     # Arrange
@@ -242,7 +237,6 @@ def test_update_user_success():
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(user)
 
-
 def test_update_user_email_already_exists():
     # Arrange
     db = MagicMock()
@@ -279,7 +273,6 @@ def test_update_user_email_already_exists():
 
     repository.update.assert_not_called()
     db.commit.assert_not_called()
-
 
 def test_update_user_document_already_exists():
     # Arrange
@@ -318,7 +311,6 @@ def test_update_user_document_already_exists():
 
     repository.update.assert_not_called()
     db.commit.assert_not_called()
-
 
 def test_update_user_password_success():
     # Arrange
@@ -372,7 +364,6 @@ def test_update_user_password_success():
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(user)
 
-
 def test_update_user_password_wrong_password_fails():
     # Arrange
     db = MagicMock()
@@ -414,7 +405,6 @@ def test_update_user_password_wrong_password_fails():
         user.password_hash,
     )
 
-
 def test_delete_user_success():
     # Arrange
     db = MagicMock()
@@ -444,7 +434,6 @@ def test_delete_user_success():
 
     repository.deactivate.assert_called_once_with(user)
     db.commit.assert_called_once()
-
 
 def test_activate_user_success():
     # Arrange
@@ -478,7 +467,6 @@ def test_activate_user_success():
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(user)
 
-
 def test_activate_user_already_active():
     # Arrange
     db = MagicMock()
@@ -505,7 +493,6 @@ def test_activate_user_already_active():
 
     repository.activate.assert_not_called()
     db.commit.assert_not_called()
-
 
 def test_get_users_success():
     # Arrange
@@ -543,7 +530,6 @@ def test_get_users_success():
         limit=10,
         include_inactive=False,
     )
-
 
 def test_get_users_empty():
     # Arrange

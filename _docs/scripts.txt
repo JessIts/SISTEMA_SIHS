@@ -1,0 +1,2 @@
+python -m scripts.create_admin example@gmail.com //script para convertir usuarios en administradores
+python -m scripts.seed_horarios //carga catalogos, sedes, la ficha 3141665 y su horario de ejemplo (idempotente)

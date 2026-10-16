@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
+from app.models.roles import UserRole
 from app.models.user import User
 
 
@@ -59,6 +60,7 @@ class UserRepository:
         page: int,
         limit: int,
         include_inactive: bool = False,
+        role: UserRole | None = None,
     ) -> tuple[list[User], int]:
 
         statement = select(User)
@@ -66,6 +68,14 @@ class UserRepository:
         count_statement = select(
             func.count()
         ).select_from(User)
+
+        if role is not None:
+            statement = statement.where(
+                User.role == role
+            )
+            count_statement = count_statement.where(
+                User.role == role
+            )
 
         if not include_inactive:
             statement = statement.where(

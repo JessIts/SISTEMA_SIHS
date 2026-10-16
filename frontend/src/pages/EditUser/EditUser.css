@@ -1,0 +1,139 @@
+.edit-user {
+  width: 100%;
+}
+
+.edit-user__header {
+  margin-bottom: 24px;
+}
+
+.edit-user__header h1 {
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.edit-user__header p {
+  margin: 6px 0 0;
+
+  color: var(--color-text-secondary);
+
+  font-size: 14px;
+}
+
+.edit-user__form {
+  max-width: 700px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  padding: 24px;
+
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+
+  box-shadow: var(--shadow-sm);
+}
+
+.edit-user__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-user__group label {
+  color: var(--color-text);
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.edit-user__group input {
+  height: 42px;
+
+  padding: 0 12px;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+
+  color: var(--color-text);
+  background: var(--color-surface);
+
+  font-size: 14px;
+
+  outline: none;
+}
+
+.edit-user__group input:focus {
+  border-color: var(--color-primary);
+}
+
+.edit-user__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  margin-top: 8px;
+}
+
+.edit-user__cancel,
+.edit-user__submit {
+  padding: 10px 18px;
+
+  border-radius: var(--border-radius-sm);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.edit-user__cancel {
+  border: 1px solid var(--color-border);
+
+  background: var(--color-surface);
+
+  color: var(--color-text);
+}
+
+.edit-user__submit {
+  border: none;
+
+  background: var(--color-primary);
+
+  color: white;
+}
+
+.edit-user__submit:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.edit-user__submit:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.6;
+}
+
+.edit-user__error {
+  margin: 0;
+
+  color: var(--color-danger);
+
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .edit-user__actions {
+    flex-direction: column-reverse;
+  }
+
+  .edit-user__cancel,
+  .edit-user__submit {
+    width: 100%;
+  }
+}

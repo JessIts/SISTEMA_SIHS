@@ -1,0 +1,101 @@
+.sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+
+  padding: 20px 12px;
+
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+}
+
+.sidebar__navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar__section-title {
+  padding: 0 12px 4px;
+
+  color: var(--color-text-muted);
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+
+  padding: 10px 12px;
+
+  border-radius: var(--border-radius-md);
+
+  color: var(--color-text-secondary);
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.sidebar__link:hover {
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+}
+
+/*
+ * En pantallas pequeñas el menú pasa a ser una franja
+ * horizontal desplazable bajo el encabezado.
+ */
+@media (max-width: 600px) {
+  .sidebar {
+    width: 100%;
+
+    padding: 8px 12px;
+
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+
+    overflow-x: auto;
+  }
+
+  .sidebar__navigation,
+  .sidebar__section {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .sidebar__link {
+    padding: 8px 12px;
+
+    white-space: nowrap;
+  }
+
+  .sidebar__section-title {
+    display: none;
+  }
+}
+
+.sidebar__link--active {
+  background: var(--color-background);
+  color: var(--color-primary);
+  font-weight: 600;
+}

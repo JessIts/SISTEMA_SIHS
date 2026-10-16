@@ -1,0 +1,133 @@
+.entity-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.entity-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.entity-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  min-width: 0;
+}
+
+.entity-form__group--full {
+  grid-column: 1 / -1;
+}
+
+.entity-form__group label {
+  color: var(--color-text);
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.entity-form__required {
+  margin-left: 2px;
+
+  color: var(--color-danger);
+}
+
+.entity-form__group input,
+.entity-form__group select,
+.entity-form__group textarea {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  font-size: 14px;
+
+  outline: none;
+}
+
+.entity-form__group textarea {
+  resize: vertical;
+}
+
+.entity-form__group input:focus,
+.entity-form__group select:focus,
+.entity-form__group textarea:focus {
+  border-color: var(--color-primary);
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.entity-form__group input:disabled,
+.entity-form__group select:disabled,
+.entity-form__group textarea:disabled {
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+}
+
+.entity-form__checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+
+  max-height: 220px;
+
+  padding: 12px;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+
+  overflow-y: auto;
+}
+
+.entity-form__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: var(--color-text);
+
+  font-size: 14px;
+}
+
+.entity-form__help,
+.entity-form__muted {
+  color: var(--color-text-muted);
+
+  font-size: 12px;
+}
+
+.entity-form__error {
+  margin: 0;
+
+  color: var(--color-danger);
+
+  font-size: 14px;
+}
+
+.entity-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .entity-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .entity-form__actions {
+    flex-direction: column-reverse;
+  }
+
+  .entity-form__actions .btn {
+    width: 100%;
+  }
+}

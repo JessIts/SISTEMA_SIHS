@@ -8,13 +8,17 @@ from app.controllers.user_controller import UserController
 from app.core.database import get_db
 from app.core.dependencies import (
     get_current_admin,
+    get_current_manager,
     get_current_user,
 )
+from app.models.roles import UserRole
 from app.schemas.user import (
     UserCreate,
     UserPagination,
     UserResponse,
     UserUpdate,
+    UserProfileUpdate,
+    UserRoleUpdate,
 )
 from app.services.user_service import UserService
 
@@ -35,6 +39,7 @@ def get_user_controller(
 @router.post(
     "",
     response_model=ApiResponse[UserResponse],
+    dependencies=[Depends(get_current_admin)],
     status_code=status.HTTP_201_CREATED,
 )
 def create_user(
@@ -64,11 +69,31 @@ def get_my_profile(
         data=current_user,
     )
 
+@router.put(
+    "/me",
+    response_model=ApiResponse[UserResponse],
+)
+def update_my_profile(
+    data: UserProfileUpdate,
+    current_user=Depends(get_current_user),
+    controller: UserController = Depends(
+        get_user_controller
+    ),
+):
+    user = controller.update_my_profile(
+        user=current_user,
+        data=data,
+    )
+
+    return ApiResponse(
+        message="Perfil actualizado correctamente.",
+        data=user,
+    )
 
 @router.get(
     "",
     response_model=ApiResponse[UserPagination],
-    dependencies=[Depends(get_current_admin)],
+    dependencies=[Depends(get_current_manager)],
 )
 def get_users(
     page: int = Query(
@@ -80,6 +105,10 @@ def get_users(
         ge=1,
         le=100,
     ),
+    role: UserRole | None = Query(
+        default=None,
+        description="Filtrar por rol (ej. instructor, aprendiz).",
+    ),
     controller: UserController = Depends(
         get_user_controller
     ),
@@ -87,6 +116,7 @@ def get_users(
     users = controller.get_all(
         page,
         limit,
+        role,
     )
 
     return ApiResponse(
@@ -111,7 +141,7 @@ def get_inactive_users(
 @router.get(
     "/{user_uuid}",
     response_model=ApiResponse[UserResponse],
-    dependencies=[Depends(get_current_admin)],
+    dependencies=[Depends(get_current_manager)],
 )
 def get_user(
     user_uuid: UUID,
@@ -142,6 +172,30 @@ def activate_user(
 
     return ApiResponse(
         message="Usuario activado correctamente.",
+        data=user,
+    )
+
+
+@router.patch(
+    "/{user_uuid}/role",
+    response_model=ApiResponse[UserResponse],
+)
+def change_user_role(
+    user_uuid: UUID,
+    data: UserRoleUpdate,
+    current_admin=Depends(get_current_admin),
+    controller: UserController = Depends(
+        get_user_controller
+    ),
+):
+    user = controller.change_role(
+        user_uuid=user_uuid,
+        data=data,
+        current_user=current_admin,
+    )
+
+    return ApiResponse(
+        message="Rol actualizado correctamente.",
         data=user,
     )
 

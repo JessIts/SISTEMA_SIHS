@@ -6,7 +6,7 @@ from app.controllers.auth_controller import AuthController
 from app.core.database import get_db
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.services.auth_service import AuthService
-
+from fastapi import APIRouter, Depends, Response
 
 router = APIRouter(
     prefix="/auth",
@@ -23,15 +23,42 @@ def get_auth_controller(
 
 @router.post(
     "/login",
-    response_model=ApiResponse[TokenResponse],
 )
 def login(
+    response: Response,
     data: LoginRequest,
-    controller: AuthController = Depends(get_auth_controller),
+    controller: AuthController = Depends(
+        get_auth_controller
+    ),
 ):
     token = controller.login(data)
 
-    return ApiResponse(
-        message="Inicio de sesión exitoso.",
-        data=token,
+    response.set_cookie(
+        key="access_token",
+        value=token.access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        path="/",
     )
+
+    return {
+        "message": "Inicio de sesión exitoso.",
+        "data": {
+            "authenticated": True,
+        },
+    }
+    
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+    )
+
+    return {
+        "message": "Sesión cerrada correctamente.",
+        "data": {
+            "authenticated": False,
+        },
+    }

@@ -1,0 +1,200 @@
+.horario-grid {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+}
+
+.horario-grid__table {
+  width: 100%;
+  min-width: 860px;
+
+  border-collapse: collapse;
+
+  table-layout: fixed;
+
+  font-size: 13px;
+}
+
+.horario-grid__table th,
+.horario-grid__table td {
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.horario-grid__table thead th {
+  padding: 10px 8px;
+
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.horario-grid__corner {
+  width: 96px;
+}
+
+.horario-grid__table .horario-grid__jornada td {
+  height: auto;
+
+  padding: 6px 12px;
+
+  background: #eff6ff;
+  color: var(--color-primary);
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.horario-grid__franja {
+  padding: 10px 8px;
+
+  background: var(--color-background);
+  color: var(--color-text);
+
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  vertical-align: top;
+}
+
+.horario-grid__franja span {
+  display: block;
+
+  color: var(--color-text-muted);
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.horario-grid__table td {
+  height: 92px;
+
+  padding: 0;
+
+  vertical-align: top;
+}
+
+.horario-grid__cell--busy {
+  background: #f8fbff;
+}
+
+.horario-grid__cell-button {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+  min-height: 92px;
+
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  text-align: left;
+}
+
+.horario-grid__cell-button:hover {
+  background: #eff6ff;
+}
+
+.horario-grid__cell-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.horario-grid__clase {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  height: 100%;
+
+  padding: 8px 10px;
+
+  border-left: 3px solid var(--color-primary);
+}
+
+.horario-grid__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 100%;
+  min-height: 92px;
+
+  color: transparent;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.horario-grid__cell-button:hover .horario-grid__add,
+.horario-grid__cell-button:focus-visible .horario-grid__add {
+  color: var(--color-primary);
+}
+
+.horario-grid__empty {
+  margin: 0;
+
+  padding: 24px;
+
+  border: 1px dashed var(--color-border);
+  border-radius: var(--border-radius-md);
+
+  color: var(--color-text-secondary);
+
+  text-align: center;
+}
+
+/* Contenido típico de una celda */
+.clase-celda__tematica {
+  display: -webkit-box;
+
+  overflow: hidden;
+
+  color: var(--color-text);
+
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.clase-celda__meta {
+  color: var(--color-text-secondary);
+
+  font-size: 11px;
+}
+
+.clase-celda__tag {
+  align-self: flex-start;
+
+  margin-top: auto;
+
+  padding: 2px 6px;
+
+  border-radius: var(--border-radius-sm);
+
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.clase-celda__tag--sincronico {
+  background: #fef3c7;
+  color: #92400e;
+}
